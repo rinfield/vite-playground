@@ -1,33 +1,46 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 
+function Input(props: {
+  id: string,
+  label: string,
+  value: string | undefined,
+  onChange: React.ChangeEventHandler<HTMLInputElement>
+}) {
+  return <div>
+    <label>{props.label}: </label>
+    <input type="text" id={props.id} name={props.id} value={props.value} onChange={props.onChange} />
+  </div>;
+}
+
+function Link(props: { userId?: string, issuer?: string, secret?: string }) {
+  if (props.userId === undefined
+    || props.userId === ""
+    || props.secret === undefined
+    || props.secret === "") {
+    return <div>必須事項が足りません</div>
+  }
+  let otpRegistrationUrl = `otpauth://totp/${props.userId}?secret=${props.secret}`
+  if (props.issuer) {
+    const urlEncodedIssuer = encodeURI(props.issuer);
+    otpRegistrationUrl = `${otpRegistrationUrl}&issuer=${urlEncodedIssuer}`
+  }
+  return <div><a href={otpRegistrationUrl}>OTP登録</a></div>
+
+}
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [userId, setUserId] = useState<string | undefined>(undefined)
+  const [issuer, setIssuer] = useState<string | undefined>(undefined)
+  const [secret, setSecret] = useState<string | undefined>(undefined)
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Input id="userid" label="User ID" value={userId} onChange={e => setUserId(e.target.value)} />
+      <Input id="secret" label="Secret" value={secret} onChange={e => setSecret(e.target.value)} />
+      <Input id="issuer" label="Issuer (Optional)" value={issuer} onChange={e => setIssuer(e.target.value)} />
+
+      <Link userId={userId} issuer={issuer} secret={secret} />
     </>
   )
 }
