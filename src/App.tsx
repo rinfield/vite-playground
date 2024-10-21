@@ -1,28 +1,25 @@
 import { useState } from 'react'
 import './App.css'
 
-function Input(props: {
+function Input({ id, label, value, setState }: {
   id: string,
   label: string,
-  value: string | undefined,
-  onChange: React.ChangeEventHandler<HTMLInputElement>
+  value: string,
+  setState: React.Dispatch<React.SetStateAction<string>>
 }) {
   return <div>
-    <label>{props.label}: </label>
-    <input type="text" id={props.id} name={props.id} value={props.value} onChange={props.onChange} />
+    <label>{label}: </label>
+    <input type="text" id={id} name={id} value={value} onChange={event => setState(event.target.value)} />
   </div>;
 }
 
-function Link(props: { customScheme: string, userId?: string, issuer?: string, secret?: string }) {
-  if (props.userId === undefined
-    || props.userId === ""
-    || props.secret === undefined
-    || props.secret === "") {
+function Link({ customScheme, userId, issuer, secret }: { customScheme: string, userId: string, issuer: string, secret: string }) {
+  if (userId === "" || secret === "") {
     return <div>必須事項が足りません</div>
   }
-  let otpRegistrationUrl = `${props.customScheme}://totp/${props.userId}?secret=${props.secret}`
-  if (props.issuer) {
-    const urlEncodedIssuer = encodeURI(props.issuer);
+  let otpRegistrationUrl = `${customScheme}://totp/${userId}?secret=${secret}`
+  if (issuer) {
+    const urlEncodedIssuer = encodeURI(issuer);
     otpRegistrationUrl = `${otpRegistrationUrl}&issuer=${urlEncodedIssuer}`
   }
   return <div><a href={otpRegistrationUrl}>OTP登録</a></div>
@@ -31,16 +28,16 @@ function Link(props: { customScheme: string, userId?: string, issuer?: string, s
 
 function App() {
   const [customScheme, setCustomScheme] = useState("otpauth")
-  const [userId, setUserId] = useState<string | undefined>(undefined)
-  const [issuer, setIssuer] = useState<string | undefined>(undefined)
-  const [secret, setSecret] = useState<string | undefined>(undefined)
+  const [userId, setUserId] = useState("")
+  const [issuer, setIssuer] = useState("")
+  const [secret, setSecret] = useState("")
 
   return (
     <>
-      <Input id="custom-scheme" label="Custom Scheme" value={customScheme} onChange={e => setCustomScheme(e.target.value)} />
-      <Input id="userid" label="User ID" value={userId} onChange={e => setUserId(e.target.value)} />
-      <Input id="secret" label="Secret" value={secret} onChange={e => setSecret(e.target.value)} />
-      <Input id="issuer" label="Issuer (Optional)" value={issuer} onChange={e => setIssuer(e.target.value)} />
+      <Input id="custom-scheme" label="Custom Scheme" value={customScheme} setState={setCustomScheme} />
+      <Input id="userid" label="User ID" value={userId} setState={setUserId} />
+      <Input id="secret" label="Secret" value={secret} setState={setSecret} />
+      <Input id="issuer" label="Issuer (Optional)" value={issuer} setState={setIssuer} />
 
       <Link customScheme={customScheme} userId={userId} issuer={issuer} secret={secret} />
     </>
